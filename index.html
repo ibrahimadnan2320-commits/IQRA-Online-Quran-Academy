@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<!-- Added 'dark' class here so the site loads in Dark Mode by default before JS even runs -->
+<html lang="en" class="dark scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IQRA Online Quran Academy | Premium Quranic Education</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Custom Tailwind Config -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class', // Enables Dark Mode toggling
+            theme: {
+                extend: {
+                    colors: {
+                        brandGreen: '#165728', 
+                        brandLightGreen: '#eefcf1',
+                        brandGold: '#cfa936', 
+                        brandDark: '#0f3b1b'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        arabic: ['Amiri', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom CSS for Animations and Patterns -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@300;400;600;700;800&display=swap');
+        
+        body { font-family: 'Inter', sans-serif; }
+        .arabic-text { font-family: 'Amiri', serif; }
+        
+        /* Global Background Pattern */
+        .global-pattern {
+            background-color: #fbfdf9; 
+            background-image: radial-gradient(#d4af37 1px, transparent 1px);
+            background-size: 28px 28px;
+            transition: background-color 0.5s ease;
+        }
+        .dark .global-pattern {
+            background-color: #0f1623; 
+            background-image: radial-gradient(#cfa936 1px, transparent 1px);
+            background-size: 28px 28px;
+        }
+
+        /* Scroll Animations */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s ease-out;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Image Hover Effects */
+        .zoom-img {
+            transition: transform 0.4s ease;
+        }
+        .zoom-img:hover {
+            transform: scale(1.05);
+            cursor: zoom-in;
+        }
+
+        /* Hide scrollbar for horizontal scrolling elements */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="text-gray-800 dark:text-gray-100 antialiased overflow-x-hidden transition-colors duration-500">
+
+    <!-- Fixed Global Pattern Background Layer -->
+    <div class="fixed inset-0 z-[-1] global-pattern"></div>
+
+    <!-- Floating WhatsApp Button -->
+    <a href="https://wa.me/923204620167" target="_blank" class="fixed bottom-6 right-6 bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:bg-green-600 transition-transform transform hover:scale-110 hover:-translate-y-2 z-50 flex items-center justify-center animate-bounce">
+        <i class="fab fa-whatsapp text-4xl"></i>
+    </a>
+
+    <!-- Full Screen Image Modal (Lightbox) -->
+    <div id="imageModal" class="fixed inset-0 z-[100] bg-black bg-opacity-90 hidden flex justify-center items-center backdrop-blur-sm opacity-0 transition-opacity duration-300">
+        <span onclick="closeModal()" class="absolute top-6 right-8 text-white text-4xl cursor-pointer hover:text-brandGold transition">&times;</span>
+        <img id="modalImage" class="max-w-[90%] max-h-[90vh] rounded-lg shadow-2xl transform scale-95 transition-transform duration-300">
+    </div>
+
+    <!-- Navigation (Solid Black, Text White) -->
+    <nav class="bg-black shadow-lg fixed w-full top-0 z-40 border-b border-brandGold/20" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-[104px]">
+                <div class="flex items-center">
+                    <!-- Logo increased by exactly 10% (h-[88px]) -->
+                    <img src="logo-final.png" alt="IQRA Logo" class="h-[88px] w-auto bg-transparent border-none shadow-none outline-none object-contain">
+                </div>
+                
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#courses" class="text-white hover:text-brandGold font-bold transition-colors">Courses</a>
+                    <a href="#instructors" class="text-white hover:text-brandGold font-bold transition-colors">Instructors</a>
+                    <a href="#reviews" class="text-white hover:text-brandGold font-bold transition-colors">Reviews</a>
+                    <a href="https://wa.me/923204620167" target="_blank" class="bg-brandGold text-black px-6 py-2.5 rounded-full font-bold hover:bg-yellow-500 hover:shadow-lg transition-transform transform hover:-translate-y-0.5">Contact Us</a>
+                    
+                    <!-- Dark Mode Toggle Desktop -->
+                    <button id="theme-toggle-desktop" class="text-white hover:text-brandGold focus:outline-none ml-2 p-2 rounded-full hover:bg-white/10 transition-colors">
+                        <i id="theme-toggle-icon-desktop" class="fas fa-sun text-2xl text-brandGold"></i>
+                    </button>
+                </div>
+
+                <!-- Mobile Menu Buttons -->
+                <div class="md:hidden flex items-center space-x-4">
+                    <button id="theme-toggle-mobile" class="text-white hover:text-brandGold focus:outline-none p-2 transition-colors">
+                        <i id="theme-toggle-icon-mobile" class="fas fa-sun text-2xl text-brandGold"></i>
+                    </button>
+                    <button id="mobileMenuBtn" class="text-white hover:text-brandGold focus:outline-none transition-colors">
+                        <i class="fas fa-bars text-3xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu Panel -->
+        <div id="mobileMenu" class="md:hidden hidden bg-black border-t border-brandGold/20 shadow-xl absolute w-full">
+            <div class="px-4 pt-2 pb-6 space-y-2 flex flex-col text-center">
+                <a href="#courses" class="block px-3 py-3 text-white font-bold hover:bg-white/10 rounded-md transition-colors">Courses</a>
+                <a href="#instructors" class="block px-3 py-3 text-white font-bold hover:bg-white/10 rounded-md transition-colors">Instructors</a>
+                <a href="#reviews" class="block px-3 py-3 text-white font-bold hover:bg-white/10 rounded-md transition-colors">Reviews</a>
+                <a href="https://wa.me/923204620167" class="block px-3 py-3 bg-brandGold text-black font-bold rounded-md mx-4 mt-4 transition-colors">Contact via WhatsApp</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section (Shifted up sharply under the top bar) -->
+    <section class="relative overflow-hidden pt-[128px] pb-12 lg:pb-16 transition-colors duration-500">
+        <!-- Abstract Background Glows -->
+        <div class="absolute top-0 right-0 w-[40rem] h-[40rem] bg-brandGreen/20 dark:bg-brandGold/10 rounded-full filter blur-3xl opacity-50 animate-blob"></div>
+        <div class="absolute top-0 left-20 w-[30rem] h-[30rem] bg-brandGold/30 dark:bg-brandGreen/10 rounded-full filter blur-3xl opacity-40 animate-blob animation-delay-2000"></div>
+
+        <!-- Extra margins removed for sharp alignment -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col md:flex-row items-center gap-8 lg:gap-12">
+            
+            <div class="md:w-1/2 text-center md:text-left reveal">
+                <span class="inline-block py-1 px-3 rounded-full bg-brandGold/20 text-brandGold font-semibold text-sm mb-3 border border-brandGold/30 backdrop-blur-sm">Admissions Open</span>
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 leading-tight tracking-tight text-gray-900 dark:text-white transition-colors">LEARN | UNDERSTAND | LIVE</h1>
+                <h2 class="text-3xl lg:text-4xl arabic-text text-brandGold mb-4 drop-shadow-md">القرآن نور الحياة</h2>
+                <p class="text-lg mb-6 text-gray-700 dark:text-gray-300 max-w-lg leading-relaxed mx-auto md:mx-0 transition-colors">Begin your spiritual journey with expert guidance. Experience our dedicated teaching approach with a <strong class="text-brandGold">Free One-Week Trial</strong>.</p>
+                
+                <!-- Animated Stats Counter -->
+                <div class="mt-8 mb-10 flex gap-10 justify-center md:justify-start reveal" id="statsContainer">
+                    <div>
+                        <div class="text-5xl lg:text-7xl font-extrabold text-brandGold flex items-center justify-center md:justify-start drop-shadow-lg">
+                            <span class="stat-counter" data-target="100">0</span>+
+                        </div>
+                        <div class="text-sm lg:text-base font-bold tracking-wide text-gray-700 dark:text-gray-400 uppercase mt-2 transition-colors">Quranic Scholar-in-Training</div>
+                    </div>
+                    <div>
+                        <div class="text-5xl lg:text-7xl font-extrabold text-brandGold flex items-center justify-center md:justify-start drop-shadow-lg">
+                            <span class="stat-counter" data-target="300">0</span>+
+                        </div>
+                        <div class="text-sm lg:text-base font-bold tracking-wide text-gray-700 dark:text-gray-400 uppercase mt-2 transition-colors">Alumni</div>
+                    </div>
+                </div>
+
+                <!-- WhatsApp Button -->
+                <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start reveal">
+                    <a href="https://wa.me/923204620167" target="_blank" class="bg-[#25D366] text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-green-500 transition-all shadow-xl hover:shadow-green-500/50 flex items-center justify-center gap-3">
+                        <i class="fab fa-whatsapp text-3xl"></i> Start on WhatsApp
+                    </a>
+                </div>
+            </div>
+            
+            <div class="md:w-1/2 flex justify-center lg:justify-end reveal relative mt-10 md:mt-0">
+                <!-- Head Instructor Pic -->
+                <div class="relative p-2 bg-white/40 dark:bg-white/5 backdrop-blur-md rounded-2xl transition-colors">
+                    <img src="hi1pic.jpeg" alt="Head Instructor Qari Hamza" class="rounded-xl shadow-2xl max-h-[450px] lg:max-h-[500px] object-cover border-2 border-brandGold/50">
+                    <!-- Badge overlay -->
+                    <div class="absolute -bottom-6 -left-6 bg-white dark:bg-gray-800 text-gray-900 dark:text-white p-4 rounded-xl shadow-xl flex items-center gap-3 border-l-4 border-brandGold transition-colors">
+                        <div class="bg-brandLightGreen dark:bg-gray-700 p-3 rounded-full text-brandGreen dark:text-brandGold transition-colors">
+                            <i class="fas fa-star text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="font-bold text-sm">Top Rated</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Expert Instructors</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Courses Section -->
+    <section id="courses" class="py-20 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 reveal">
+                <h2 class="text-3xl md:text-4xl font-extrabold text-brandGreen dark:text-brandGold mb-4 transition-colors">Courses Offered</h2>
+                <div class="w-24 h-1.5 bg-brandGold mx-auto rounded-full"></div>
+                <p class="mt-4 text-gray-700 dark:text-gray-400 max-w-2xl mx-auto transition-colors">Comprehensive Islamic education tailored for all age groups and skill levels.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Course Cards -->
+                <div class="group bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl hover:shadow-2xl hover:border-brandGold/50 hover:-translate-y-2 transition-all duration-300 reveal border border-transparent dark:border-brandGold/10">
+                    <div class="bg-brandLightGreen dark:bg-gray-700 w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:bg-brandGreen dark:group-hover:bg-brandGold transition-colors duration-300">
+                        <i class="fas fa-book-open text-brandGreen dark:text-brandGold text-2xl group-hover:text-white dark:group-hover:text-gray-900 transition-colors duration-300"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-white transition-colors">Basic Noorani Qaida</h3>
+                    <p class="text-gray-600 dark:text-gray-400 leading-relaxed transition-colors">The foundational course for beginners to read the Arabic alphabet with correct pronunciation.</p>
+                </div>
+                
+                <div class="group bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl hover:shadow-2xl hover:border-brandGold/50 hover:-translate-y-2 transition-all duration-300 reveal border border-transparent dark:border-brandGold/10">
+                    <div class="bg-brandLightGreen dark:bg-gray-700 w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:bg-brandGreen dark:group-hover:bg-brandGold transition-colors duration-300">
+                        <i class="fas fa-quran text-brandGreen dark:text-brandGold text-2xl group-hover:text-white dark:group-hover:text-gray-900 transition-colors duration-300"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-white transition-colors">Naazrah Quran with Tajweed</h3>
+                    <p class="text-gray-600 dark:text-gray-400 leading-relaxed transition-colors">Learn to recite the Holy Quran fluently by applying the core rules of Tajweed.</p>
+                </div>
+                
+                <div class="group bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl hover:shadow-2xl hover:border-brandGold/50 hover:-translate-y-2 transition-all duration-300 reveal border border-transparent dark:border-brandGold/10">
+                    <div class="bg-brandLightGreen dark:bg-gray-700 w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:bg-brandGreen dark:group-hover:bg-brandGold transition-colors duration-300">
+                        <i class="fas fa-brain text-brandGreen dark:text-brandGold text-2xl group-hover:text-white dark:group-hover:text-gray-900 transition-colors duration-300"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-white transition-colors">Hifz-e-Quran</h3>
+                    <p class="text-gray-600 dark:text-gray-400 leading-relaxed transition-colors">Complete or partial memorization of the Holy Quran with proper Tajweed and revision techniques.</p>
+                </div>
+                
+                <div class="group bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl hover:shadow-2xl hover:border-brandGold/50 hover:-translate-y-2 transition-all duration-300 reveal border border-transparent dark:border-brandGold/10">
+                    <div class="bg-brandLightGreen dark:bg-gray-700 w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:bg-brandGreen dark:group-hover:bg-brandGold transition-colors duration-300">
+                        <i class="fas fa-language text-brandGreen dark:text-brandGold text-2xl group-hover:text-white dark:group-hover:text-gray-900 transition-colors duration-300"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-white transition-colors">Special Tajweed Classes</h3>
+                    <p class="text-gray-600 dark:text-gray-400 leading-relaxed transition-colors">Advanced classes dedicated solely to perfecting pronunciation, articulation points, and recitation rules.</p>
+                </div>
+                
+                <div class="group bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl hover:shadow-2xl hover:border-brandGold/50 hover:-translate-y-2 transition-all duration-300 reveal border border-transparent dark:border-brandGold/10">
+                    <div class="bg-brandLightGreen dark:bg-gray-700 w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:bg-brandGreen dark:group-hover:bg-brandGold transition-colors duration-300">
+                        <i class="fas fa-praying-hands text-brandGreen dark:text-brandGold text-2xl group-hover:text-white dark:group-hover:text-gray-900 transition-colors duration-300"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-white transition-colors">Namaz, Kalima's & Dua's</h3>
+                    <p class="text-gray-600 dark:text-gray-400 leading-relaxed transition-colors">Essential daily supplications, the pillars of faith, and the correct, sunnah method of prayer.</p>
+                </div>
+                
+                <!-- Action Card -->
+                <div class="bg-brandGreen dark:bg-gray-800 p-8 rounded-2xl shadow-xl hover:-translate-y-2 transition-all duration-300 flex flex-col justify-center items-center text-center reveal border-b-4 border-brandGold dark:border-brandGold/30 dark:hover:border-brandGold">
+                    <h3 class="text-2xl font-bold mb-4 text-white">Basic Islamic Education</h3>
+                    <p class="text-green-100 dark:text-gray-400 mb-6 transition-colors">Comprehensive foundations of Islam for young learners and new Muslims.</p>
+                    <a href="https://wa.me/923204620167" target="_blank" class="bg-brandGold text-gray-900 px-8 py-3 rounded-full font-bold hover:bg-yellow-400 transition-colors shadow-md w-full">Inquire Now</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Instructors Section -->
+    <section id="instructors" class="py-20 relative border-t border-brandGold/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 reveal">
+                <h2 class="text-3xl md:text-4xl font-extrabold text-brandGreen dark:text-brandGold mb-4 transition-colors">Meet Our Expert Instructors</h2>
+                <div class="w-24 h-1.5 bg-brandGold mx-auto rounded-full mb-6"></div>
+                <p class="text-gray-700 dark:text-gray-400 max-w-2xl mx-auto transition-colors">Highly qualified, experienced, and dedicated to nurturing the spiritual growth of every student.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                
+                <!-- Qari Hamza Butt -->
+                <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden flex flex-col reveal group border border-transparent dark:border-brandGold/10">
+                    <div class="relative overflow-hidden">
+                        <img src="hi1pic.jpeg" alt="Qari Muhammad Hamza Butt" class="w-full h-80 object-cover object-top group-hover:scale-105 transition-transform duration-500">
+                        <div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-gray-900/90 to-transparent p-6">
+                            <h3 class="text-2xl font-bold text-white mb-1">Qari M. Hamza Butt</h3>
+                            <p class="text-brandGold font-semibold">Founder & Head Instructor</p>
+                        </div>
+                    </div>
+                    <div class="p-8 flex-grow flex flex-col">
+                        <ul class="text-gray-700 dark:text-gray-300 text-sm space-y-3 mb-6 transition-colors">
+                            <li class="flex items-center gap-3"><i class="fas fa-briefcase text-brandGreen dark:text-brandGold bg-brandLightGreen dark:bg-gray-700 p-2 rounded-full transition-colors"></i> 7+ Years Experience</li>
+                            <li class="flex items-center gap-3"><i class="fas fa-graduation-cap text-brandGreen dark:text-brandGold bg-brandLightGreen dark:bg-gray-700 p-2 rounded-full transition-colors"></i> BS Computer Science</li>
+                        </ul>
+                        <div class="mt-auto pt-6 border-t border-gray-100 dark:border-gray-700 transition-colors">
+                            <p class="text-xs font-bold text-gray-500 dark:text-gray-400 mb-3 tracking-widest uppercase">Awards & Shields (Click to view)</p>
+                            <div class="flex gap-3">
+                                <img src="hic1.jpeg" alt="Hifz Shield 1" onclick="openModal(this.src)" class="h-20 w-20 object-cover rounded-lg shadow-sm zoom-img border border-gray-200 dark:border-gray-700 transition-colors">
+                                <img src="hic2.jpeg" alt="Hifz Shield 2" onclick="openModal(this.src)" class="h-20 w-20 object-cover rounded-lg shadow-sm zoom-img border border-gray-200 dark:border-gray-700 transition-colors">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Miss Fatima Zahid Butt -->
+                <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden flex flex-col reveal group border border-transparent dark:border-brandGold/10">
+                    <div class="w-full h-80 bg-brandLightGreen dark:bg-gray-900 flex items-center justify-center relative transition-colors">
+                        <div class="bg-white/90 dark:bg-gray-800/90 backdrop-blur p-8 rounded-full shadow-inner transition-colors">
+                            <i class="fas fa-book-reader text-brandGreen dark:text-brandGold text-6xl transition-colors"></i>
+                        </div>
+                        <div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-gray-900/90 to-transparent p-6">
+                            <h3 class="text-2xl font-bold text-white mb-1">Miss Fatima Zahid</h3>
+                            <p class="text-brandGold font-semibold">Senior Female Instructor</p>
+                        </div>
+                    </div>
+                    <div class="p-8 flex-grow flex flex-col">
+                        <ul class="text-gray-700 dark:text-gray-300 text-sm space-y-3 mb-6 transition-colors">
+                            <li class="flex items-center gap-3"><i class="fas fa-briefcase text-brandGreen dark:text-brandGold bg-brandLightGreen dark:bg-gray-700 p-2 rounded-full transition-colors"></i> 6 Years Experience</li>
+                            <li class="flex items-center gap-3"><i class="fas fa-award text-brandGreen dark:text-brandGold bg-brandLightGreen dark:bg-gray-700 p-2 rounded-full transition-colors"></i> Certified Hafiza</li>
+                        </ul>
+                        <div class="mt-auto pt-6 border-t border-gray-100 dark:border-gray-700 transition-colors">
+                            <p class="text-xs font-bold text-gray-500 dark:text-gray-400 mb-3 tracking-widest uppercase">Certificates (Click to view)</p>
+                            <div class="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+                                <img src="fic1.jpeg" alt="Fatima Certificate 1" onclick="openModal(this.src)" class="h-20 w-auto rounded-lg shadow-sm zoom-img border border-gray-200 dark:border-gray-700 transition-colors">
+                                <img src="fic2.jpeg" alt="Fatima Certificate 2" onclick="openModal(this.src)" class="h-20 w-auto rounded-lg shadow-sm zoom-img border border-gray-200 dark:border-gray-700 transition-colors">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bilal Javed -->
+                <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden flex flex-col reveal group border border-transparent dark:border-brandGold/10">
+                    <div class="relative overflow-hidden">
+                        <img src="2ndipic.jpeg" alt="Bilal Javed" class="w-full h-80 object-cover object-top group-hover:scale-105 transition-transform duration-500">
+                        <div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-gray-900/90 to-transparent p-6">
+                            <h3 class="text-2xl font-bold text-white mb-1">Bilal Javed</h3>
+                            <p class="text-brandGold font-semibold">Senior Quranic Educator</p>
+                        </div>
+                    </div>
+                    <div class="p-8 flex-grow flex flex-col">
+                        <ul class="text-gray-700 dark:text-gray-300 text-sm space-y-3 mb-6 transition-colors">
+                            <li class="flex items-center gap-3"><i class="fas fa-certificate text-brandGreen dark:text-brandGold bg-brandLightGreen dark:bg-gray-700 p-2 rounded-full transition-colors"></i> Wifaq-ul-Madaris Certified</li>
+                            <li class="flex items-center gap-3"><i class="fas fa-star text-brandGreen dark:text-brandGold bg-brandLightGreen dark:bg-gray-700 p-2 rounded-full transition-colors"></i> Hifz-ul-Quran Expert</li>
+                        </ul>
+                        <div class="mt-auto pt-6 border-t border-gray-100 dark:border-gray-700 transition-colors">
+                            <p class="text-xs font-bold text-gray-500 dark:text-gray-400 mb-3 tracking-widest uppercase">Certificate (Click to view)</p>
+                            <img src="2ndic.jpeg" alt="Bilal Hifz Certificate" onclick="openModal(this.src)" class="h-20 w-auto object-cover rounded-lg shadow-sm zoom-img border border-gray-200 dark:border-gray-700 transition-colors">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Reviews Section -->
+    <section id="reviews" class="py-24 relative border-t border-brandGold/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center mb-16 reveal">
+                <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-4 transition-colors">Alhamdulillah, Our Parents Speak For Us</h2>
+                <div class="w-24 h-1.5 bg-brandGold mx-auto rounded-full mb-6"></div>
+                <p class="text-gray-700 dark:text-gray-400 max-w-2xl mx-auto text-lg transition-colors">Read genuine feedback and progress updates from the parents of our students via WhatsApp.</p>
+            </div>
+            
+            <div class="columns-1 sm:columns-2 lg:columns-4 gap-6 space-y-6">
+                <img src="r1.jpeg" alt="Parent Review 1" onclick="openModal(this.src)" class="w-full rounded-xl shadow-2xl hover:shadow-brandGold/30 hover:scale-[1.02] transition-all cursor-zoom-in border border-gray-200 dark:border-gray-800 reveal">
+                <img src="r2.jpeg" alt="Parent Review 2" onclick="openModal(this.src)" class="w-full rounded-xl shadow-2xl hover:shadow-brandGold/30 hover:scale-[1.02] transition-all cursor-zoom-in border border-gray-200 dark:border-gray-800 reveal">
+                <img src="r3.jpeg" alt="Parent Review 3" onclick="openModal(this.src)" class="w-full rounded-xl shadow-2xl hover:shadow-brandGold/30 hover:scale-[1.02] transition-all cursor-zoom-in border border-gray-200 dark:border-gray-800 reveal">
+                <img src="r4.jpeg" alt="Parent Review 4" onclick="openModal(this.src)" class="w-full rounded-xl shadow-2xl hover:shadow-brandGold/30 hover:scale-[1.02] transition-all cursor-zoom-in border border-gray-200 dark:border-gray-800 reveal">
+                <img src="r5.jpeg" alt="Parent Review 5" onclick="openModal(this.src)" class="w-full rounded-xl shadow-2xl hover:shadow-brandGold/30 hover:scale-[1.02] transition-all cursor-zoom-in border border-gray-200 dark:border-gray-800 reveal">
+                <img src="r6.jpeg" alt="Parent Review 6" onclick="openModal(this.src)" class="w-full rounded-xl shadow-2xl hover:shadow-brandGold/30 hover:scale-[1.02] transition-all cursor-zoom-in border border-gray-200 dark:border-gray-800 reveal">
+                <img src="r7.jpeg" alt="Parent Review 7" onclick="openModal(this.src)" class="w-full rounded-xl shadow-2xl hover:shadow-brandGold/30 hover:scale-[1.02] transition-all cursor-zoom-in border border-gray-200 dark:border-gray-800 reveal">
+                <img src="r8.jpeg" alt="Parent Review 8" onclick="openModal(this.src)" class="w-full rounded-xl shadow-2xl hover:shadow-brandGold/30 hover:scale-[1.02] transition-all cursor-zoom-in border border-gray-200 dark:border-gray-800 reveal">
+            </div>
+            
+            <div class="mt-16 text-center reveal">
+                <a href="https://wa.me/923204620167" target="_blank" class="inline-flex items-center gap-3 bg-white dark:bg-gray-800 text-brandGreen dark:text-brandGold px-8 py-4 rounded-full font-bold text-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all shadow-xl hover:-translate-y-1 border border-gray-200 dark:border-gray-700">
+                    <i class="fab fa-whatsapp text-2xl text-[#25D366]"></i> Join Our Satisfied Community
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Area (Solid Black, Text White) -->
+    <footer class="bg-black py-12 text-center border-t border-brandGold/30">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col items-center">
+            
+            <div class="mb-6 inline-block">
+                <!-- Enlarged footer logo exactly matching nav size 10% larger -->
+                <img src="logo-final.png" alt="IQRA Logo Solid" class="h-[88px] w-auto bg-transparent border-none shadow-none outline-none object-contain">
+            </div>
+
+            <p class="font-bold text-white text-lg mb-2">IQRA Online Quran Academy</p>
+            <p class="mb-6"><a href="mailto:iqraonlinequran08@gmail.com" class="text-gray-300 hover:text-brandGold transition">iqraonlinequran08@gmail.com</a> | <a href="tel:+923204620167" class="text-gray-300 hover:text-brandGold transition">+92 320 4620167</a></p>
+            
+            <div class="flex gap-4 mb-8">
+                <a href="https://wa.me/923204620167" target="_blank" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-[#25D366] text-white transition shadow-lg"><i class="fab fa-whatsapp text-xl"></i></a>
+                <a href="mailto:iqraonlinequran08@gmail.com" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-brandGold text-white transition shadow-lg"><i class="fas fa-envelope text-xl"></i></a>
+            </div>
+            
+            <p class="text-sm text-gray-400">&copy; 2026 IQRA Online Quran Academy. All rights reserved.</p>
+            <p class="text-xs mt-2 text-white font-bold tracking-widest uppercase">Learn | Understand | Live</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        const btn = document.getElementById('mobileMenuBtn');
+        const menu = document.getElementById('mobileMenu');
+        
+        btn.addEventListener('click', () => {
+            menu.classList.toggle('hidden');
+        });
+
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                nav.classList.add('bg-opacity-95', 'backdrop-blur-md');
+            } else {
+                nav.classList.remove('bg-opacity-95', 'backdrop-blur-md');
+            }
+        });
+
+        const modal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('modalImage');
+
+        function openModal(src) {
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modalImg.classList.remove('scale-95');
+                modalImg.classList.add('scale-100');
+            }, 10);
+            modalImg.src = src;
+            document.body.style.overflow = 'hidden'; 
+        }
+
+        function closeModal() {
+            modal.classList.add('opacity-0');
+            modalImg.classList.remove('scale-100');
+            modalImg.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.body.style.overflow = 'auto'; 
+            }, 300);
+        }
+
+        modal.addEventListener('click', function(e) {
+            if(e.target === modal) {
+                closeModal();
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if(e.key === "Escape" && !modal.classList.contains('hidden')) {
+                closeModal();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const reveals = document.querySelectorAll('.reveal');
+
+            const revealObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                    }
+                });
+            }, {
+                root: null,
+                threshold: 0.15,
+                rootMargin: "0px 0px -50px 0px" 
+            });
+
+            reveals.forEach(reveal => {
+                revealObserver.observe(reveal);
+            });
+        });
+
+        const statCounters = document.querySelectorAll('.stat-counter');
+        let hasCounted = false;
+
+        const statObserver = new IntersectionObserver((entries) => {
+            if(entries[0].isIntersecting && !hasCounted) {
+                hasCounted = true;
+                statCounters.forEach(counter => {
+                    const target = +counter.getAttribute('data-target');
+                    const duration = 1400; 
+                    const increment = target / (duration / 16); 
+                    let current = 0;
+                    
+                    const updateCounter = () => {
+                        current += increment;
+                        if(current < target) {
+                            counter.innerText = Math.ceil(current);
+                            requestAnimationFrame(updateCounter);
+                        } else {
+                            counter.innerText = target;
+                        }
+                    };
+                    updateCounter();
+                });
+            }
+        });
+        
+        if (document.getElementById('statsContainer')) {
+            statObserver.observe(document.getElementById('statsContainer'));
+        }
+
+        const themeToggleBtns = [document.getElementById('theme-toggle-desktop'), document.getElementById('theme-toggle-mobile')];
+        const themeToggleIcons = [document.getElementById('theme-toggle-icon-desktop'), document.getElementById('theme-toggle-icon-mobile')];
+
+        // Adjusted logic to force dark mode by default if no preference is saved
+        if (localStorage.getItem('color-theme') === 'dark' || !('color-theme' in localStorage)) {
+            document.documentElement.classList.add('dark');
+            themeToggleIcons.forEach(icon => {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            });
+        } else {
+            document.documentElement.classList.remove('dark');
+            themeToggleIcons.forEach(icon => {
+                icon.classList.add('fa-moon');
+                icon.classList.remove('fa-sun');
+            });
+        }
+
+        themeToggleBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                themeToggleIcons.forEach(icon => {
+                    if (document.documentElement.classList.contains('dark')) {
+                        icon.classList.remove('fa-sun');
+                        icon.classList.add('fa-moon');
+                    } else {
+                        icon.classList.remove('fa-moon');
+                        icon.classList.add('fa-sun');
+                    }
+                });
+
+                if (document.documentElement.classList.contains('dark')) {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('color-theme', 'light');
+                } else {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('color-theme', 'dark');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
